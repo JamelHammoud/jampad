@@ -6,7 +6,7 @@ I built Jampad after I noticed that I kept pasting the same context (from Google
 
 ```bash
 cd your-project
-npx jampad
+npx @jamelhammoud/jampad@latest
 ```
 
 That's it. On first run Jampad creates a `./jam/` folder with a `Welcome.md` and opens a dev server at [http://localhost:3000](http://localhost:3000). No config, no scaffolding.
@@ -33,7 +33,7 @@ Drop a config file at the root of your project. Jampad looks for (in order): `ja
 If you want typed autocomplete or a custom LLM backend, use TypeScript:
 
 ```ts
-import { defineJampadConfig } from "jampad/config";
+import { defineJampadConfig } from "@jamelhammoud/jampad/config";
 
 export default defineJampadConfig({
   branding: { name: "My Wiki", logo: "📓" },

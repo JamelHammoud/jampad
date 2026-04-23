@@ -1,10 +1,8 @@
-import type { NextConfig } from "next";
-
-const config: NextConfig = {
+const config = {
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: false },
-  outputFileTracingRoot: __dirname,
+  outputFileTracingRoot: import.meta.dirname,
   devIndicators: false,
   serverExternalPackages: ["jiti"],
   experimental: {
