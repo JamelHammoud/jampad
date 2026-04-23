@@ -1,6 +1,6 @@
 {
   "name": "@jamelhammoud/jampad",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "A Notion-style, local-first wiki & chat that boots from a single config file.",
   "license": "MIT",
   "author": "Jamel Hammoud",
@@ -29,7 +29,7 @@
   "files": [
     "bin",
     "src",
-    "next.config.ts",
+    "next.config.mjs",
     "postcss.config.mjs",
     "tsconfig.json",
     "next-env.d.ts",
