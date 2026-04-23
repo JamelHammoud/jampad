@@ -1,0 +1,75 @@
+{
+  "branding": {
+    "name": "My Wiki",
+    "logo": "📓"
+  },
+
+  "content": {
+    "dir": "./jam",
+    "defaultIcon": "📄",
+    "hiddenFiles": ["README.md"]
+  },
+
+  "uploads": {
+    "dir": "./jam/attachments",
+    "urlPrefix": "/attachments/",
+    "maxBytes": 26214400,
+    "allowedTypes": ["image/*", "application/pdf"]
+  },
+
+  "features": {
+    "sidebar": true,
+    "commandPalette": true,
+    "icon": true,
+    "cover": true,
+    "chat": false,
+    "search": true,
+    "newPage": true
+  },
+
+  "theme": {
+    "accent": "rgb(35, 131, 226)",
+    "fg": "rgb(55, 53, 47)",
+    "bg": "#ffffff",
+    "bgSidebar": "rgb(247, 246, 243)",
+    "maxWidth": "720px",
+    "titleSize": "40px",
+    "radius": "6px"
+  },
+
+  "strings": {
+    "appName": "My Wiki",
+    "chatPlaceholder": "Jam on anything…",
+    "searchPlaceholder": "Search pages…"
+  },
+
+  "editor": {
+    "debounceMs": 500
+  },
+
+  "chats": {
+    "enabled": false,
+    "dir": "./chats",
+    "claude": {
+      "binary": "claude",
+      "model": "opus",
+      "effort": "high",
+      "addDirs": ["./jam"],
+      "systemPrompt": "You are the assistant for this wiki."
+    }
+  },
+
+  "server": {
+    "port": 3000,
+    "host": "127.0.0.1"
+  },
+
+  "mcp": {
+    "http": {
+      "enabled": false,
+      "port": 4100,
+      "host": "127.0.0.1",
+      "token": ""
+    }
+  }
+}
