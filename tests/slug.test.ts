@@ -5,7 +5,7 @@ import {
   slugStartsWith,
   decodeSlug,
   slugifyFileName,
-} from "@/lib/slug";
+} from "@/shared/slug";
 
 describe("slugToHref", () => {
   it("joins and prefixes with /", () => {

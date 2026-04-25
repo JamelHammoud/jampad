@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { summarizeTool } from "@/lib/toolLabel";
+import { summarizeTool } from "@/shared/toolLabel";
 
 describe("summarizeTool", () => {
   it("returns file_path for Read/Write/Edit/MultiEdit/NotebookEdit", () => {

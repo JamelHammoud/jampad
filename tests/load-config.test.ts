@@ -2,15 +2,13 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+  CONFIG_NAMES,
+  findConfigFile,
+  loadConfigFile,
+} from "@/server/lib/load-config";
 
-// CommonJS loader — import via Node's require since Vitest runs ESM by default.
-import { createRequire } from "node:module";
-const require = createRequire(import.meta.url);
-const loader = require("../src/lib/load-config.js") as {
-  CONFIG_NAMES: string[];
-  findConfigFile: (cwd: string) => string | null;
-  loadConfigFile: (path: string, jampadRoot: string) => unknown;
-};
+const loader = { CONFIG_NAMES, findConfigFile, loadConfigFile };
 
 let workDir: string;
 

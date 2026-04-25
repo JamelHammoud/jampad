@@ -7,3 +7,9 @@ coverage
 .env*
 !.env.example
 tsconfig.tsbuildinfo
+
+# Compiled binaries (output of `bun run build:binary`)
+/jampad
+/jampad-darwin-*
+/jampad-linux-*
+/jampad-windows-*.exe

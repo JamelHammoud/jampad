@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { ChatStreamAccumulator } from "@/lib/chat-stream";
-import type { ClaudeStreamEvent } from "@/lib/types";
+import { ChatStreamAccumulator } from "@/shared/chat-stream";
+import type { ClaudeStreamEvent } from "@/shared/types";
 
 function feed(acc: ChatStreamAccumulator, events: ClaudeStreamEvent[]) {
   for (const ev of events) acc.onEvent(ev);

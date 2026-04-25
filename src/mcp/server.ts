@@ -4,7 +4,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { randomUUID } from "node:crypto";
 import http from "node:http";
 import { registerTools } from "./tools";
-import { getConfig } from "@/lib/config";
+import { getConfig } from "@/server/lib/config";
 
 export function createMcpServer(): McpServer {
   const cfg = getConfig();

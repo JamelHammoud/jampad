@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jampad</title>
+    <style id="jampad-theme">
+      :root {
+        --fg: rgb(55, 53, 47);
+        --bg: #ffffff;
+        --bg-sidebar: rgb(247, 246, 243);
+        --bg-hover: rgba(55, 53, 47, 0.06);
+        --bg-hover-strong: rgba(55, 53, 47, 0.08);
+        --bg-active: rgba(55, 53, 47, 0.16);
+        --accent: rgb(35, 131, 226);
+        --divider: rgba(55, 53, 47, 0.15);
+        --font-sans:
+          ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji",
+          "Segoe UI Symbol";
+        --font-mono:
+          "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono",
+          Courier, monospace;
+        --jampad-max-width: 720px;
+        --jampad-title-size: 40px;
+        --jampad-icon-size: 72px;
+        --jampad-radius: 6px;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font-sans);
+      }
+      #root {
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>
