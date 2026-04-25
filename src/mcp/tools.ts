@@ -9,9 +9,9 @@ import {
   readPage,
   renamePage,
   writePage,
-} from "@/lib/fs";
-import { folderFromSlug } from "@/lib/paths";
-import { searchPages } from "@/lib/search";
+} from "@/server/lib/fs";
+import { folderFromSlug } from "@/server/lib/paths";
+import { searchPages } from "@/server/lib/search";
 
 /**
  * Each tool is a thin wrapper over src/lib/fs.ts (or search.ts). Handlers are
@@ -66,7 +66,7 @@ export const handlers = {
   }): Promise<ToolResult> {
     const title = (args.title ?? "").trim();
     if (!title) throw new Error("title is required");
-    const { slugifyFileName } = await import("@/lib/slug");
+    const { slugifyFileName } = await import("@/shared/slug");
     const parent = Array.isArray(args.parentSlug) ? args.parentSlug : [];
     const fileName = slugifyFileName(title);
     const slug = [...parent, fileName];

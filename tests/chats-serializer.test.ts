@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { serializeMessages, parseMessages } from "@/lib/chats";
-import type { ChatMessage } from "@/lib/types";
+import { serializeMessages, parseMessages } from "@/server/lib/chats";
+import type { ChatMessage } from "@/shared/types";
 
 function roundTrip(messages: ChatMessage[]): ChatMessage[] {
   return parseMessages(serializeMessages(messages));

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { humanize } from "@/lib/humanize";
+import { humanize } from "@/shared/humanize";
 
 describe("humanize", () => {
   it("converts kebab-case to Title Case", () => {

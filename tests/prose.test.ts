@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scrubLlmProse } from "@/lib/prose";
+import { scrubLlmProse } from "@/shared/prose";
 
 describe("scrubLlmProse", () => {
   it("rewrites spaced em-dashes as periods", () => {
