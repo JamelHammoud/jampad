@@ -11,7 +11,9 @@
     "jampad": "./bin/jampad.mjs"
   },
   "exports": {
-    "./config": "./src/server/lib/config.ts",
+    "./config": {
+      "types": "./src/server/lib/config.ts"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
