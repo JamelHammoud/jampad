@@ -1,6 +1,6 @@
 {
   "name": "@jamelhammoud/jampad",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0",
   "description": "A Notion-style, local-first wiki & chat that boots from a single config file.",
   "license": "MIT",
   "author": "Jamel Hammoud",
