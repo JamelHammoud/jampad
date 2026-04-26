@@ -229,16 +229,14 @@ export function Sidebar() {
             <div key={section.key} className="sidebar-section-group">
               <div className="sidebar-section-label">
                 <span className="flex-1">{section.label}</span>
-                {section.slug.length > 0 && (
-                  <button
-                    className="add-btn"
-                    onClick={() => addPage(section.slug)}
-                    aria-label={`Add a page in ${section.label}`}
-                    title="Add a page"
-                  >
-                    <Plus size={14} strokeWidth={2.75} />
-                  </button>
-                )}
+                <button
+                  className="add-btn"
+                  onClick={() => addPage(section.slug)}
+                  aria-label={`Add a page in ${section.label}`}
+                  title="Add a page"
+                >
+                  <Plus size={14} strokeWidth={2.75} />
+                </button>
               </div>
               <div>
                 {section.tree.map((node) => (
@@ -253,13 +251,11 @@ export function Sidebar() {
                     onDelete={deleteNode}
                   />
                 ))}
-                {section.slug.length > 0 && (
-                  <AddRow
-                    depth={0}
-                    label="Add new"
-                    onClick={() => addPage(section.slug)}
-                  />
-                )}
+                <AddRow
+                  depth={0}
+                  label="Add new"
+                  onClick={() => addPage(section.slug)}
+                />
               </div>
             </div>
           ))

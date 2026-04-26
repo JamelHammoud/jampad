@@ -8,6 +8,7 @@ import { chatsRoute } from "./routes/chats";
 import { uploadsRoute } from "./routes/uploads";
 import { attachmentsRoute } from "./routes/attachments";
 import { configRoute } from "./routes/config";
+import { eventsRoute } from "./routes/events";
 import { EMBEDDED_ASSETS } from "./embedded-assets";
 
 export type CreateAppOptions = {
@@ -26,6 +27,7 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.route("/api/search", searchRoute);
   app.route("/api/chats", chatsRoute);
   app.route("/api/uploads", uploadsRoute);
+  app.route("/api/events", eventsRoute);
   app.route("/attachments", attachmentsRoute);
 
   if (EMBEDDED_ASSETS) {
