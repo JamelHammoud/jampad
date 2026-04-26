@@ -17,7 +17,7 @@ Jampad ships as a single npm package containing a prebuilt React SPA (built with
 
 ## Customizing
 
-To customize Jampad, simply drop a config file at the root of your project. Jampad looks for (in order): `jampad.config.ts`, `.mts`, `.mjs`, `.js`, `.json`. It's all optional.
+To customize Jampad, simply drop a config file at the root of your project. Jampad looks for (in order): `jampad.config.mjs`, `.js`, `.json`. It's all optional.
 
 ```json
 {
@@ -28,12 +28,11 @@ To customize Jampad, simply drop a config file at the root of your project. Jamp
 }
 ```
 
-You can also use TypeScript:
+For a richer config (a custom system prompt, a live `ChatBackend`, computed values), use `.mjs` with a JSDoc type reference for editor autocomplete:
 
-```ts
-import { defineJampadConfig } from "@jamelhammoud/jampad/config";
-
-export default defineJampadConfig({
+```js
+/** @type {import("@jamelhammoud/jampad/config").JampadConfig} */
+export default {
   branding: { name: "My Wiki", logo: "📓" },
   features: { chat: true },
   chats: {
@@ -43,10 +42,10 @@ export default defineJampadConfig({
       addDirs: ["./jam"],
     },
   },
-});
+};
 ```
 
-See [`jampad.config.example.json`](jampad.config.example.json) for a full reference, and [`src/server/lib/config.ts`](src/server/lib/config.ts) for the complete type.
+See [`jampad.config.example.json`](jampad.config.example.json) for a full reference, and [`src/server/lib/config.ts`](src/server/lib/config.ts) for the complete `JampadConfig` type.
 
 ## Commands
 

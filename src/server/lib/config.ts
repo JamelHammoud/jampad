@@ -161,10 +161,6 @@ export type ResolvedJampadConfig = {
   };
 };
 
-export function defineJampadConfig(c: JampadConfig): JampadConfig {
-  return c;
-}
-
 const DEFAULT_THEME: Required<ThemeConfig> = {
   fg: "rgb(55, 53, 47)",
   bg: "#ffffff",
