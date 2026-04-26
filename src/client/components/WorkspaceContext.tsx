@@ -57,6 +57,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
+  // Subscribe to /api/events so the sidebar reflects changes made outside
+  // jampad (a markdown file dropped in by another editor, a `mv`, etc).
+  // EventSource handles automatic reconnection on transient failures.
+  useEffect(() => {
+    const es = new EventSource("/api/events");
+    es.addEventListener("tree-changed", () => {
+      refresh();
+    });
+    return () => es.close();
+  }, [refresh]);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey;
