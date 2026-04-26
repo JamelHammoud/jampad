@@ -1,9 +1,10 @@
 import path from "node:path";
 import fs from "node:fs";
-import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 
-// Priority order: TS variants first (richer — can declare a live ChatBackend,
-// computed values, imports), JSON last. JSON skips jiti entirely.
+// Priority: richer formats first, JSON last. .ts/.mts work natively under
+// Bun; under Node they require Node 22+ with --experimental-strip-types or
+// will fail — pick .mjs/.json if you need Node-only support.
 export const CONFIG_NAMES = [
   "jampad.config.ts",
   "jampad.config.mts",
@@ -20,38 +21,14 @@ export function findConfigFile(cwd: string): string | null {
   return null;
 }
 
-export function loadConfigFile(
-  configPath: string,
-  jampadRoot: string,
-): unknown {
+export async function loadConfigFile(configPath: string): Promise<unknown> {
   if (configPath.endsWith(".json")) {
     return JSON.parse(fs.readFileSync(configPath, "utf8"));
   }
-  // Use createRequire on the *consumer's* config file so jiti resolves jampad
-  // out of their node_modules (or our linked package).
-  const localRequire = createRequire(configPath);
-
-  const mod = localRequire("jiti") as {
-    createJiti?: typeof Function;
-    default?: typeof Function;
-  } & ((path: string, opts: unknown) => unknown);
-  const factory =
-    (mod as { createJiti?: typeof mod }).createJiti ??
-    (mod as { default?: typeof mod }).default ??
-    mod;
-  const alias = {
-    jampad: jampadRoot,
-    "jampad/config": path.join(jampadRoot, "src", "server", "lib", "config.ts"),
+  // Native dynamic import. Bun handles .ts/.mts natively; Node handles
+  // .mjs/.js out of the box and (recent versions) .ts behind a flag.
+  const mod = (await import(pathToFileURL(configPath).href)) as {
+    default?: unknown;
   };
-  const jiti = (factory as (p: string, o: unknown) => unknown)(configPath, {
-    interopDefault: true,
-    alias,
-  });
-  const loaded =
-    typeof jiti === "function"
-      ? (jiti as (p: string) => unknown)(configPath)
-      : (jiti as { require: (p: string) => unknown }).require(configPath);
-  return loaded && typeof loaded === "object" && "default" in loaded
-    ? (loaded as { default: unknown }).default
-    : loaded;
+  return mod.default ?? mod;
 }
