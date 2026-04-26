@@ -97,7 +97,7 @@ body {
   line-height: 1.3 !important;
   margin-top: 1.2rem !important;
 }
-.bn-container code {
+.bn-container .bn-inline-content code {
   background: var(--bg-code) !important;
   color: var(--fg-code) !important;
   padding: 0.15em 0.4em;
@@ -105,19 +105,33 @@ body {
   font-size: 85% !important;
   font-family: var(--font-mono) !important;
 }
-.bn-container pre,
 .bn-container .bn-block-content[data-content-type="codeBlock"] {
   background: rgb(247, 246, 243) !important;
   border: 1px solid var(--divider) !important;
   border-radius: 6px !important;
   font-family: var(--font-mono) !important;
   font-size: 0.85rem !important;
+  color: var(--fg) !important;
 }
-.bn-container blockquote,
-.bn-container .bn-block-content[data-content-type="quote"] {
+.bn-container .bn-block-content[data-content-type="codeBlock"] > pre {
+  background: transparent !important;
+  border: 0 !important;
+}
+.bn-container .bn-block-content[data-content-type="codeBlock"] code {
+  background: transparent !important;
+  color: var(--fg) !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+}
+.bn-container .bn-block-content[data-content-type="codeBlock"] > div > select {
+  color: var(--fg) !important;
+}
+.bn-container [data-content-type="quote"] blockquote {
   border-left: 3px solid var(--fg) !important;
   padding-left: 14px !important;
+  margin: 0 !important;
   font-style: normal !important;
+  color: var(--fg) !important;
 }
 
 .bn-container [data-content-type="divider"] hr {
