@@ -1,6 +1,5 @@
 import path from "node:path";
 import fs from "node:fs";
-import { fileURLToPath } from "node:url";
 import { findConfigFile, loadConfigFile } from "./load-config";
 
 export type ChatBackend = {
@@ -318,25 +317,49 @@ function resolveConfig(
 
 let cached: ResolvedJampadConfig | null = null;
 
+// Loads jampad.config.* asynchronously and populates the cache. Call this
+// once at startup (CLI does it before any subcommand runs); afterwards
+// getConfig() is a sync getter. Tests that don't drop a config file in the
+// working dir don't need to call this — the lazy fallback below uses defaults.
+export async function preloadConfig(
+  cwd: string = process.env.JAMPAD_CWD ?? process.cwd(),
+): Promise<ResolvedJampadConfig> {
+  const configPath = findConfigFile(cwd);
+  const raw = (
+    configPath ? ((await loadConfigFile(configPath)) as JampadConfig) : {}
+  ) as JampadConfig;
+  applyEnvFromConfig(raw);
+  cached = resolveConfig(raw, cwd, configPath);
+  return cached;
+}
+
 export function getConfig(): ResolvedJampadConfig {
   if (cached) return cached;
+  // Lazy fallback for callers (notably tests) that haven't preloaded. Only
+  // .json is safe to load synchronously; for .ts/.mjs the caller must have
+  // called preloadConfig() first.
   const cwd = process.env.JAMPAD_CWD || process.cwd();
   const configPath = findConfigFile(cwd);
   let raw: JampadConfig = {};
   if (configPath) {
-    const here = fileURLToPath(import.meta.url);
-    const jampadRoot =
-      process.env.JAMPAD_ROOT ??
-      path.resolve(path.dirname(here), "..", "..", "..");
-    raw = (loadConfigFile(configPath, jampadRoot) as JampadConfig) ?? {};
-  }
-  if (raw.env) {
-    for (const [k, v] of Object.entries(raw.env)) {
-      if (process.env[k] === undefined) process.env[k] = v;
+    if (configPath.endsWith(".json")) {
+      raw = JSON.parse(fs.readFileSync(configPath, "utf8")) as JampadConfig;
+    } else {
+      throw new Error(
+        `[jampad] ${configPath} cannot be loaded synchronously. Call preloadConfig() at startup or use a .json config.`,
+      );
     }
   }
+  applyEnvFromConfig(raw);
   cached = resolveConfig(raw, cwd, configPath);
   return cached;
+}
+
+function applyEnvFromConfig(raw: JampadConfig) {
+  if (!raw.env) return;
+  for (const [k, v] of Object.entries(raw.env)) {
+    if (process.env[k] === undefined) process.env[k] = v;
+  }
 }
 
 export function themeToCssVars(theme: Required<ThemeConfig>): string {

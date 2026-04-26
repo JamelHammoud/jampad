@@ -47,7 +47,7 @@ describe("findConfigFile", () => {
 });
 
 describe("loadConfigFile (JSON path)", () => {
-  it("parses JSON without invoking jiti", () => {
+  it("parses JSON synchronously", async () => {
     const path = join(workDir, "jampad.config.json");
     writeFileSync(
       path,
@@ -56,7 +56,7 @@ describe("loadConfigFile (JSON path)", () => {
         features: { chat: true },
       }),
     );
-    const result = loader.loadConfigFile(path, "/unused") as {
+    const result = (await loader.loadConfigFile(path)) as {
       branding: { name: string; logo: string };
       features: { chat: boolean };
     };
@@ -65,9 +65,9 @@ describe("loadConfigFile (JSON path)", () => {
     expect(result.features.chat).toBe(true);
   });
 
-  it("throws on malformed JSON", () => {
+  it("throws on malformed JSON", async () => {
     const path = join(workDir, "jampad.config.json");
     writeFileSync(path, "{ not valid json");
-    expect(() => loader.loadConfigFile(path, "/unused")).toThrow();
+    await expect(loader.loadConfigFile(path)).rejects.toThrow();
   });
 });

@@ -16,10 +16,10 @@ if (argv.length && HELP_FLAGS.has(argv[0])) {
   console.log(`jampad [command] [flags]
 
 Commands:
-  (none)   Start the dev server (default)
-  dev      Start the dev server (Vite + Hono)
-  build    Build the client bundle for production
+  (none)   Serve the prebuilt client + API (default; same as \`start\`)
   start    Serve the prebuilt client + API
+  dev      Start the dev server (Vite + Hono — repo only; needs devDeps)
+  build    Build the client bundle (repo only; needs devDeps)
   mcp      Run the MCP server (stdio by default; --http for Streamable HTTP)
 
 Flags:
@@ -39,7 +39,9 @@ First run in an empty directory? Just type:  npx jampad
 }
 
 const first = argv[0];
-const subcmd = first && !first.startsWith("-") ? first : "dev";
+// Default to `start` (uses the prebuilt dist/client shipped in the npm tarball).
+// Maintainers in the jampad repo run `bun run dev` explicitly to invoke Vite.
+const subcmd = first && !first.startsWith("-") ? first : "start";
 if (!VALID.has(subcmd)) {
   console.error(`Unknown command: ${subcmd}. Try \`jampad --help\`.`);
   process.exit(1);
@@ -50,22 +52,17 @@ const rest = first === subcmd ? argv.slice(1) : argv;
 process.env.JAMPAD_CWD = cwd;
 process.env.JAMPAD_ROOT = repoRoot;
 
-const { findConfigFile, loadConfigFile } =
-  await import("./server/lib/load-config");
-
-const configPath = findConfigFile(cwd);
-let configData: Record<string, unknown> | null = null;
-if (configPath) {
-  try {
-    configData = loadConfigFile(configPath, repoRoot) as Record<
-      string,
-      unknown
-    >;
-  } catch (err) {
-    process.stderr.write(
-      `[jampad] failed to read ${configPath}: ${err instanceof Error ? err.message : String(err)}\n`,
-    );
-  }
+// Eagerly load jampad.config.* once. Server modules call getConfig()
+// synchronously after this; the cache is shared.
+const { preloadConfig } = await import("./server/lib/config");
+let cfg;
+try {
+  cfg = await preloadConfig(cwd);
+} catch (err) {
+  process.stderr.write(
+    `[jampad] failed to read config: ${err instanceof Error ? err.message : String(err)}\n`,
+  );
+  process.exit(1);
 }
 
 // --- MCP subcommand: dispatch and exit (long-running). -----------------------
@@ -96,12 +93,10 @@ if (subcmd === "mcp") {
   };
 
   if (useHttp) {
-    const http =
-      (configData?.mcp as { http?: Record<string, unknown> })?.http ?? {};
-    const port = Number(mcpPort ?? (http.port as number) ?? 4100);
-    const host = mcpHost ?? (http.host as string) ?? "127.0.0.1";
-    const token =
-      mcpToken ?? process.env.JAMPAD_MCP_TOKEN ?? (http.token as string) ?? "";
+    const http = cfg.mcp.http;
+    const port = Number(mcpPort ?? http.port);
+    const host = mcpHost ?? http.host;
+    const token = mcpToken ?? process.env.JAMPAD_MCP_TOKEN ?? http.token;
     if (!token) {
       process.stderr.write(
         "[jampad mcp] --http requires a token. Set one via --token, JAMPAD_MCP_TOKEN, or mcp.http.token in config.\n",
@@ -118,9 +113,6 @@ if (subcmd === "mcp") {
 }
 
 // --- HTTP server subcommands (dev, build, start). ---------------------------
-const cfgServer =
-  (configData?.server as { port?: number; host?: string }) ?? {};
-
 let cliPort: string | null = null;
 let cliHost: string | null = null;
 let noOpen = false;
@@ -132,14 +124,12 @@ for (let i = 0; i < rest.length; i++) {
   else if (a === "--no-open") noOpen = true;
 }
 
-const port = Number(cliPort ?? cfgServer.port ?? 3000);
-const host = cliHost ?? cfgServer.host ?? "127.0.0.1";
+const port = Number(cliPort ?? cfg.server.port);
+const host = cliHost ?? cfg.server.host;
 
-// Zero-config first-run: create ./jam so the sidebar isn't empty.
+// Zero-config first-run: create the content dir so the sidebar isn't empty.
 if (subcmd === "dev" || subcmd === "start") {
-  const contentDirRaw =
-    ((configData?.content as { dir?: string }) ?? {}).dir ?? "./jam";
-  const contentDir = resolve(cwd, contentDirRaw);
+  const contentDir = cfg.content.dir;
   if (!existsSync(contentDir)) {
     try {
       mkdirSync(contentDir, { recursive: true });
@@ -162,7 +152,7 @@ Add a \`jampad.config.ts\` at the project root whenever you want to customize br
           "utf8",
         );
       }
-      console.log(`[jampad] Created ${contentDirRaw}/ with Welcome.md`);
+      console.log(`[jampad] Created ${contentDir}/ with Welcome.md`);
     } catch (err) {
       console.warn(
         `[jampad] could not create content dir:`,
@@ -183,9 +173,21 @@ function openBrowser(url: string) {
   spawn(cmd, [url], { stdio: "ignore", detached: true }).unref();
 }
 
+async function tryImportVite() {
+  try {
+    return await import("vite");
+  } catch {
+    process.stderr.write(
+      "[jampad] `dev` and `build` need the jampad source tree. Clone the repo and run `bun install`,\n" +
+        "         or run plain `jampad` (or `jampad start`) to serve the prebuilt client.\n",
+    );
+    process.exit(1);
+  }
+}
+
 if (subcmd === "build") {
-  const { build } = await import("vite");
-  await build({ configFile: join(repoRoot, "vite.config.ts") });
+  const vite = await tryImportVite();
+  await vite.build({ configFile: join(repoRoot, "vite.config.ts") });
   process.exit(0);
 }
 
@@ -198,8 +200,8 @@ if (subcmd === "dev") {
   const honoApp = createApp({});
   serve({ fetch: honoApp.fetch, port: honoPort, hostname: host });
 
-  const { createServer } = await import("vite");
-  const vite = await createServer({
+  const vite = await tryImportVite();
+  const server = await vite.createServer({
     configFile: join(repoRoot, "vite.config.ts"),
     server: {
       port,
@@ -211,10 +213,10 @@ if (subcmd === "dev") {
       },
     },
   });
-  await vite.listen();
+  await server.listen();
 
   const dt = (performance.now() - t0).toFixed(0);
-  console.log(`\n  ▲ jampad dev ready in ${dt}ms`);
+  console.log(`\n  jampad dev ready in ${dt}ms`);
   console.log(`  → http://${host}:${port}\n`);
   openBrowser(`http://${host}:${port}`);
 } else if (subcmd === "start") {
@@ -235,7 +237,7 @@ if (subcmd === "dev") {
   serve({ fetch: app.fetch, port, hostname: host });
 
   const dt = (performance.now() - t0).toFixed(0);
-  console.log(`\n  ▲ jampad ready in ${dt}ms`);
+  console.log(`\n  jampad ready in ${dt}ms`);
   console.log(`  → http://${host}:${port}\n`);
   openBrowser(`http://${host}:${port}`);
 }

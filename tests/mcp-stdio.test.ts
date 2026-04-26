@@ -61,7 +61,10 @@ beforeAll(async () => {
     "utf8",
   );
 
-  child = spawn("node", [CLI, "mcp"], {
+  // Spawn with `bun` so the launcher can run src/cli.ts directly without
+  // requiring `dist/cli.js` to exist. `node bin/jampad.mjs` is tested
+  // separately by the consumer-install integration test against the bundle.
+  child = spawn("bun", [CLI, "mcp"], {
     cwd: workDir,
     env: { ...process.env, JAMPAD_CWD: workDir },
   }) as ChildProcessWithoutNullStreams;

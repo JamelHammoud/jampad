@@ -1,29 +1,28 @@
 #!/usr/bin/env node
-// Tiny launcher. The real CLI lives in src/cli.ts so it can be transpiled by
-// Vite for the npm tarball, run under Bun directly, or compiled to a single
-// binary with `bun build --compile`.
+// Tiny launcher.
 //
-// At runtime we either:
-//   - run under Bun, where TS is native
-//   - run under Node, where we use jiti to load the TS source on the fly
+// In the npm tarball: dist/cli.js exists (a bundled, dependency-free Node ESM
+// file produced by `bun build`). Run it directly under whatever runtime is
+// available — no transpiler, no transitive deps, no node_modules dance.
+//
+// In the source repo before `bun run build` has happened: fall back to
+// running src/cli.ts under Bun (Bun has native TS).
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
+import { existsSync } from "node:fs";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const cliPath = join(here, "..", "src", "cli.ts");
+const repoRoot = join(here, "..");
+const bundledCli = join(repoRoot, "dist", "cli.js");
+const sourceCli = join(repoRoot, "src", "cli.ts");
 
-if (typeof Bun !== "undefined") {
-  await import(cliPath);
+if (existsSync(bundledCli)) {
+  await import(bundledCli);
+} else if (typeof Bun !== "undefined") {
+  await import(sourceCli);
 } else {
-  const require = createRequire(import.meta.url);
-  const jitiMod = require("jiti");
-  const factory = jitiMod.createJiti ?? jitiMod.default ?? jitiMod;
-  const jiti = factory(import.meta.url, {
-    interopDefault: true,
-    alias: {
-      "@": join(here, "..", "src"),
-    },
-  });
-  await jiti.import(cliPath);
+  process.stderr.write(
+    "[jampad] dist/cli.js not found. Run `bun run build` first, or run via `bun bin/jampad.mjs`.\n",
+  );
+  process.exit(1);
 }
