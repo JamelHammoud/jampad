@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   ci:
-    name: typecheck / format / lint / test / build
+    name: typecheck / format / lint / test / build / integration
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,8 +34,14 @@ jobs:
       - name: Lint
         run: bun run lint
 
-      - name: Test
+      - name: Unit tests
         run: bun run test
 
-      - name: Build
+      - name: Build (client SPA + bundled server)
         run: bun run build
+
+      # Pack the tarball, install with --omit=dev in a fresh dir, spawn the
+      # CLI, drive real disk I/O through the API. Catches devDependency leaks
+      # and distribution drift that unit tests can't see.
+      - name: Consumer-install integration test
+        run: bun run test:integration

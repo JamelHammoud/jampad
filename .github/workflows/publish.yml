@@ -65,9 +65,13 @@ jobs:
         if: steps.version.outputs.skip == 'false'
         run: bun run test
 
-      - name: Build client bundle
+      - name: Build client SPA + bundled server
         if: steps.version.outputs.skip == 'false'
         run: bun run build
+
+      - name: Consumer-install integration test
+        if: steps.version.outputs.skip == 'false'
+        run: bun run test:integration
 
       - name: Publish to npm
         if: steps.version.outputs.skip == 'false'
