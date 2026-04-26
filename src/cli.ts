@@ -141,13 +141,14 @@ if (subcmd === "dev" || subcmd === "start") {
 title: Welcome
 icon: 👋
 ---
+
 You're up and running. Drop \`.md\` files anywhere under this folder and they'll show up in the sidebar.
 
 - Press ⌘K to search pages.
 - Click the **+** next to a section to add a page.
 - Edit the title above and start writing.
 
-Add a \`jampad.config.ts\` at the project root whenever you want to customize branding, theme, or enable AI chat.
+Add a \`jampad.config.mjs\` at the project root whenever you want to customize branding, theme, or enable AI chat.
 `,
           "utf8",
         );
