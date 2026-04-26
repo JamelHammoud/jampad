@@ -9,17 +9,15 @@ cd your-project
 npx @jamelhammoud/jampad@latest
 ```
 
-That's it. On first run Jampad creates a `./jam/` folder with a `Welcome.md` and opens a dev server at [http://localhost:3000](http://localhost:3000). No config, no scaffolding.
-
-Everything under `./jam` becomes a page. Folders become sections in the sidebar. The filename (without `.md`) is the URL slug.
+Everything in `./jam` becomes a page. Folders are sections in the sidebar. The filename (without `.md`) is the URL slug.
 
 ## How it works
 
-Jampad ships as a single npm package with a bundled Next.js app. The CLI boots that app from `node_modules`, pointed at your current directory. Markdown pages and uploaded images live on disk. Optional AI chat shells out to [Claude Code](https://github.com/anthropics/claude-code) and streams responses back.
+Jampad ships as a single npm package containing a prebuilt React SPA (built with Vite) and a tiny Hono server. The CLI launches the server in your current directory. Markdown pages and uploaded images live on disk as `.md` files alongside attachments. Optional AI chat shells out to [Claude Code](https://github.com/anthropics/claude-code) and streams responses back.
 
 ## Customizing
 
-Drop a config file at the root of your project. Jampad looks for (in order): `jampad.config.ts`, `.mts`, `.mjs`, `.js`, `.json`. Everything is optional.
+To customize Jampad, simply drop a config file at the root of your project. Jampad looks for (in order): `jampad.config.ts`, `.mts`, `.mjs`, `.js`, `.json`. It's all optional.
 
 ```json
 {
@@ -30,7 +28,7 @@ Drop a config file at the root of your project. Jampad looks for (in order): `ja
 }
 ```
 
-If you want typed autocomplete or a custom LLM backend, use TypeScript:
+You can also use TypeScript:
 
 ```ts
 import { defineJampadConfig } from "@jamelhammoud/jampad/config";
@@ -48,7 +46,7 @@ export default defineJampadConfig({
 });
 ```
 
-See [`jampad.config.example.json`](jampad.config.example.json) for a full reference, and [`src/lib/config.ts`](src/lib/config.ts) for the complete type.
+See [`jampad.config.example.json`](jampad.config.example.json) for a full reference, and [`src/server/lib/config.ts`](src/server/lib/config.ts) for the complete type.
 
 ## Commands
 
@@ -92,7 +90,7 @@ Off by default. Enable with `features.chat: true` and `chats.enabled: true`. Ins
 
 You can pass a custom system prompt via `chats.claude.systemPrompt`.
 
-To plug in a different LLM backend, provide a `chats.backend` that matches the `ChatBackend` interface in [`src/lib/config.ts`](src/lib/config.ts).
+To plug in a different LLM backend, provide a `chats.backend` that matches the `ChatBackend` interface in [`src/server/lib/config.ts`](src/server/lib/config.ts).
 
 ## MCP (use Jampad from any AI tool)
 
@@ -125,7 +123,7 @@ export JAMPAD_MCP_TOKEN=$(openssl rand -hex 32)
 jampad mcp --http --port 4100 --token "$JAMPAD_MCP_TOKEN"
 ```
 
-Every request must carry `Authorization: Bearer <token>`. Tunnel it through `ngrok` or `cloudflared` to expose safely. Or, if the remote machine has git access to the wiki, `git clone` it and run `jampad mcp` locally there instead.
+Every request must carry `Authorization: Bearer <token>`. You can tunnel it through `ngrok` or `cloudflared`, or, if the remote machine has git access to the wiki, `git clone` it and run `jampad mcp` locally there instead.
 
 ## Notes from your phone
 
