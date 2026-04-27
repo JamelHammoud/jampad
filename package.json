@@ -52,14 +52,13 @@
     "markdown",
     "local-first"
   ],
-  "dependencies": {
-    "@excalidraw/excalidraw": "^0.18.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@blocknote/core": "0.48.1",
     "@blocknote/mantine": "0.48.1",
     "@blocknote/react": "0.48.1",
     "@emoji-mart/data": "^1.2.1",
+    "@excalidraw/excalidraw": "^0.18.1",
     "@emoji-mart/react": "^1.1.1",
     "@eslint/js": "^10.0.1",
     "@floating-ui/dom": "^1.6.0",

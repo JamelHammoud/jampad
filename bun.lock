@@ -4,9 +4,6 @@
   "workspaces": {
     "": {
       "name": "@jamelhammoud/jampad",
-      "dependencies": {
-        "@excalidraw/excalidraw": "^0.18.1",
-      },
       "devDependencies": {
         "@blocknote/core": "0.48.1",
         "@blocknote/mantine": "0.48.1",
@@ -14,6 +11,7 @@
         "@emoji-mart/data": "^1.2.1",
         "@emoji-mart/react": "^1.1.1",
         "@eslint/js": "^10.0.1",
+        "@excalidraw/excalidraw": "^0.18.1",
         "@floating-ui/dom": "^1.6.0",
         "@hono/node-server": "^1.13.7",
         "@mantine/core": "^8.3.11",
