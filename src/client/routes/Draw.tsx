@@ -15,10 +15,14 @@ type State =
   | { kind: "missing" };
 
 export function DrawRoute() {
-  const { id = "" } = useParams();
+  const { id } = useParams();
   const [state, setState] = useState<State>({ kind: "loading" });
 
   useEffect(() => {
+    if (!id) {
+      setState({ kind: "missing" });
+      return;
+    }
     let cancelled = false;
     setState({ kind: "loading" });
     fetch(`/api/drawings/${id}`)

@@ -973,7 +973,6 @@ body {
 .drawing-canvas .excalidraw .ToolIcon_type_button {
   color: var(--fg);
 }
-.drawing-canvas .excalidraw .help-icon,
 .drawing-canvas .excalidraw .undo-redo-buttons {
   background: var(--bg);
 }

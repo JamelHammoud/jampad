@@ -13,7 +13,6 @@ const STRAIGHT_DEFAULTS = {
 
 type Props = {
   initial: DrawingData;
-  onTitleChange?: (title: string) => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
