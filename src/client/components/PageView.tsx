@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { ImagePlus, Smile } from "lucide-react";
 import type { PageData } from "@/shared/types";
 import { Breadcrumb } from "./Breadcrumb";
@@ -31,16 +32,30 @@ type Props = { initial: PageData };
 
 export function PageView({ initial }: Props) {
   const { refresh } = useWorkspace();
+  const { search } = useLocation();
+  const isNew = new URLSearchParams(search).get("new") === "1";
 
   const [title, setTitle] = useState(initial.title);
   const [icon, setIcon] = useState<string | undefined>(initial.icon);
   const [cover, setCover] = useState<string | undefined>(initial.cover);
   const [slug, setSlug] = useState<string[]>(initial.slug);
   const [emojiAnchor, setEmojiAnchor] = useState<DOMRect | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const showEmojiPicker = emojiAnchor !== null;
   const openEmoji = (target: Element) =>
     setEmojiAnchor(target.getBoundingClientRect());
   const closeEmoji = () => setEmojiAnchor(null);
+
+  useEffect(() => {
+    if (!isNew) return;
+    const el = titleInputRef.current;
+    if (!el) return;
+    el.focus();
+    el.select();
+    // Strip the ?new=1 once consumed so refreshing doesn't re-focus.
+    window.history.replaceState(null, "", slugToHref(initial.slug));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const state = useRef({
     title: initial.title,
@@ -147,14 +162,14 @@ export function PageView({ initial }: Props) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen page-surface">
+    <div className="flex flex-col min-h-full page-surface">
       <Breadcrumb slug={slug} title={title} />
 
       {cover && (
-        <div className="w-full h-[30vh] max-h-[320px] bg-[color:var(--bg-hover)] relative overflow-hidden">
+        <div className="w-full h-[20vh] sm:h-[30vh] max-h-[320px] bg-[color:var(--bg-hover)] relative overflow-hidden">
           <img src={cover} alt="" className="w-full h-full object-cover" />
           <button
-            className="absolute right-4 bottom-4 bg-white/80 backdrop-blur text-[13px] px-3 py-1.5 rounded border border-[color:var(--divider)] text-[color:var(--fg-70)] hover:bg-white"
+            className="absolute right-3 bottom-3 sm:right-4 sm:bottom-4 bg-white/80 backdrop-blur text-[13px] px-3 py-1.5 rounded border border-[color:var(--divider)] text-[color:var(--fg-70)] hover:bg-white"
             onClick={() => onCoverChange(undefined)}
           >
             Remove cover
@@ -162,11 +177,11 @@ export function PageView({ initial }: Props) {
         </div>
       )}
 
-      <div className="mx-auto w-full max-w-[720px] px-6 sm:px-12">
-        <div className={cover ? "pt-10" : "pt-24"}>
+      <div className="mx-auto w-full max-w-[720px] px-4 sm:px-12">
+        <div className={cover ? "pt-6 sm:pt-10" : "pt-6 sm:pt-24"}>
           {icon && (
             <button
-              className="text-[72px] leading-none mb-3 select-none cursor-pointer inline-flex p-1 -ml-1 rounded-lg transition-colors hover:bg-(--bg-hover)"
+              className="text-[56px] sm:text-[72px] leading-none mb-3 select-none cursor-pointer inline-flex p-1 -ml-1 rounded-lg transition-colors hover:bg-(--bg-hover)"
               onClick={(e) => openEmoji(e.currentTarget)}
               aria-label="Change icon"
               type="button"
@@ -208,6 +223,7 @@ export function PageView({ initial }: Props) {
           />
 
           <input
+            ref={titleInputRef}
             className="title-input"
             placeholder="Untitled"
             value={title}

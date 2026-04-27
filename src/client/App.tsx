@@ -1,9 +1,11 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ConfigProvider, type ClientConfig } from "./components/ConfigContext";
 import { WorkspaceProvider } from "./components/WorkspaceContext";
 import { CommandPalette } from "./components/CommandPalette";
 import { EditorPreload } from "./components/EditorPreload";
 import { Sidebar } from "./components/Sidebar";
+import { MobileTopBar } from "./components/MobileTopBar";
 import { HomeRoute } from "./routes/Home";
 import { PageRoute } from "./routes/Page";
 import { ChatLandingRoute } from "./routes/ChatLanding";
@@ -17,25 +19,74 @@ export function App({ config }: { config: ClientConfig }) {
     <ConfigProvider value={config}>
       <BrowserRouter>
         <WorkspaceProvider>
-          <div className="flex h-screen w-screen overflow-hidden">
-            {showSidebar && <Sidebar />}
-            <main className="flex-1 overflow-y-auto">
-              <Routes>
-                <Route path="/" element={<HomeRoute />} />
-                {config.features.chat && (
-                  <>
-                    <Route path="/chat" element={<ChatLandingRoute />} />
-                    <Route path="/chat/:id" element={<ChatRoute />} />
-                  </>
-                )}
-                <Route path="/*" element={<PageRoute />} />
-              </Routes>
-            </main>
-          </div>
+          <Shell showSidebar={showSidebar}>
+            <Routes>
+              <Route path="/" element={<HomeRoute />} />
+              {config.features.chat && (
+                <>
+                  <Route path="/chat" element={<ChatLandingRoute />} />
+                  <Route path="/chat/:id" element={<ChatRoute />} />
+                </>
+              )}
+              <Route path="/*" element={<PageRoute />} />
+            </Routes>
+          </Shell>
           {showPalette && <CommandPalette />}
           <EditorPreload />
         </WorkspaceProvider>
       </BrowserRouter>
     </ConfigProvider>
+  );
+}
+
+function Shell({
+  showSidebar,
+  children,
+}: {
+  showSidebar: boolean;
+  children: React.ReactNode;
+}) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  // Auto-close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll while the drawer is open so the page underneath
+  // doesn't scroll along with the gesture.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [drawerOpen]);
+
+  return (
+    <div className="flex h-dvh w-screen overflow-hidden">
+      {showSidebar && (
+        <Sidebar
+          drawerOpen={drawerOpen}
+          onNavigate={() => setDrawerOpen(false)}
+        />
+      )}
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {showSidebar && (
+          <MobileTopBar onOpenDrawer={() => setDrawerOpen(true)} />
+        )}
+        <div className="flex-1 overflow-y-auto">{children}</div>
+      </main>
+      {showSidebar && (
+        <div
+          className="mobile-drawer-backdrop"
+          data-open={drawerOpen || undefined}
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden
+        />
+      )}
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "@/client/lib/router";
-import { FileText, Plus, Search } from "lucide-react";
+import { FileText, Plus, Search, X } from "lucide-react";
 import { useWorkspace } from "./WorkspaceContext";
 import { slugToHref } from "@/shared/slug";
 
@@ -110,6 +110,14 @@ export function CommandPalette() {
             onChange={(e) => setQ(e.target.value)}
             style={{ borderBottom: "none" }}
           />
+          <button
+            className="cmdk-close"
+            onClick={() => setPaletteOpen(false)}
+            aria-label="Close"
+            type="button"
+          >
+            <X size={18} />
+          </button>
         </div>
         <div className="cmdk-list">
           {options.length === 0 ? (
