@@ -26,7 +26,13 @@ function currentSlugFromPath(pathname: string): string[] {
     .map((p) => decodeURIComponent(p));
 }
 
-export function Sidebar() {
+export function Sidebar({
+  drawerOpen = false,
+  onNavigate,
+}: {
+  drawerOpen?: boolean;
+  onNavigate?: () => void;
+} = {}) {
   const { sections, chats, refresh, refreshChats, setPaletteOpen } =
     useWorkspace();
   const cfg = useClientConfig();
@@ -91,9 +97,10 @@ export function Sidebar() {
       if (!res.ok) return;
       const { slug } = (await res.json()) as { slug: string[] };
       await refresh();
-      router.push(slugToHref(slug));
+      router.push(slugToHref(slug) + "?new=1");
+      onNavigate?.();
     },
-    [refresh, router],
+    [refresh, router, onNavigate],
   );
 
   const newChat = useCallback(async () => {
@@ -106,7 +113,8 @@ export function Sidebar() {
     const data = (await res.json()) as { id: string };
     await refreshChats();
     router.push(`/chat/${data.id}`);
-  }, [refreshChats, router]);
+    onNavigate?.();
+  }, [refreshChats, router, onNavigate]);
 
   useEffect(() => {
     if (!chatEnabled) return;
@@ -161,10 +169,7 @@ export function Sidebar() {
   );
 
   return (
-    <aside
-      className="h-full w-[260px] shrink-0 border-r border-[color:var(--fg-05)] flex flex-col"
-      style={{ background: "var(--bg-sidebar)" }}
-    >
+    <aside className="sidebar-aside" data-drawer-open={drawerOpen || undefined}>
       <WorkspaceHeader />
 
       <div className="sidebar-nav-row">
@@ -174,6 +179,7 @@ export function Sidebar() {
               href="/"
               className="nav-btn primary"
               data-active={isHome || undefined}
+              onClick={() => onNavigate?.()}
             >
               <Home size={16} />
               <span>Home</span>
@@ -184,6 +190,7 @@ export function Sidebar() {
                 className="nav-btn"
                 title="Chat"
                 aria-label="Chat"
+                onClick={() => onNavigate?.()}
               >
                 <MessageCircle size={16} />
               </Link>
@@ -191,11 +198,22 @@ export function Sidebar() {
           </>
         ) : (
           <>
-            <Link href="/" className="nav-btn" title="Home" aria-label="Home">
+            <Link
+              href="/"
+              className="nav-btn"
+              title="Home"
+              aria-label="Home"
+              onClick={() => onNavigate?.()}
+            >
               <Home size={16} />
             </Link>
             {chatEnabled && (
-              <Link href="/chat" className="nav-btn primary" data-active>
+              <Link
+                href="/chat"
+                className="nav-btn primary"
+                data-active
+                onClick={() => onNavigate?.()}
+              >
                 <MessageCircle size={16} />
                 <span>Chat</span>
               </Link>
@@ -206,7 +224,10 @@ export function Sidebar() {
           <button
             className="nav-btn"
             title={`${cfg.strings.searchPlaceholder} (⌘K)`}
-            onClick={() => setPaletteOpen(true)}
+            onClick={() => {
+              setPaletteOpen(true);
+              onNavigate?.();
+            }}
             aria-label="Search"
           >
             <Search size={16} />
@@ -219,7 +240,10 @@ export function Sidebar() {
           <ChatSidebar
             chats={chats}
             activeChatId={activeChatId}
-            onOpen={(id) => router.push(`/chat/${id}`)}
+            onOpen={(id) => {
+              router.push(`/chat/${id}`);
+              onNavigate?.();
+            }}
             onDelete={deleteChat}
           />
         ) : sections.length === 0 ? (
@@ -249,6 +273,7 @@ export function Sidebar() {
                     toggleExpanded={toggleExpanded}
                     onAddPage={addPage}
                     onDelete={deleteNode}
+                    onNavigate={onNavigate}
                   />
                 ))}
                 <AddRow
@@ -425,6 +450,7 @@ function TreeRow({
   toggleExpanded,
   onAddPage,
   onDelete,
+  onNavigate,
 }: {
   node: TreeNode;
   depth: number;
@@ -433,6 +459,7 @@ function TreeRow({
   toggleExpanded: (slug: string[]) => void;
   onAddPage: (slug: string[]) => void | Promise<void>;
   onDelete: (slug: string[]) => void | Promise<void>;
+  onNavigate?: () => void;
 }) {
   const router = useRouter();
   const expanded = isExpanded(node.slug);
@@ -441,8 +468,10 @@ function TreeRow({
   const icon = node.kind === "page" ? node.icon : undefined;
 
   const navigate = () => {
-    if (node.kind === "page") router.push(slugToHref(node.slug));
-    else toggleExpanded(node.slug);
+    if (node.kind === "page") {
+      router.push(slugToHref(node.slug));
+      onNavigate?.();
+    } else toggleExpanded(node.slug);
   };
 
   return (
@@ -512,6 +541,7 @@ function TreeRow({
               toggleExpanded={toggleExpanded}
               onAddPage={onAddPage}
               onDelete={onDelete}
+              onNavigate={onNavigate}
             />
           ))}
           {node.children.length === 0 && (

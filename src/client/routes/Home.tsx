@@ -46,7 +46,7 @@ export function HomeRoute() {
       if (res.ok) {
         const { slug } = (await res.json()) as { slug: string[] };
         await refresh();
-        navigate(slugToHref(slug));
+        navigate(slugToHref(slug) + "?new=1");
       }
     } finally {
       setCreating(false);
@@ -54,7 +54,7 @@ export function HomeRoute() {
   };
 
   return (
-    <div className="flex h-full flex-col items-center justify-center px-8 text-center">
+    <div className="flex min-h-full flex-col items-center justify-center px-6 sm:px-8 py-10 text-center">
       {cfg.branding.showLogo && cfg.branding.logoImage ? (
         <img
           src={cfg.branding.logoImage}
