@@ -5,6 +5,7 @@ import { pagesRoute } from "./routes/pages";
 import { treeRoute } from "./routes/tree";
 import { searchRoute } from "./routes/search";
 import { chatsRoute } from "./routes/chats";
+import { drawingsRoute } from "./routes/drawings";
 import { uploadsRoute } from "./routes/uploads";
 import { attachmentsRoute } from "./routes/attachments";
 import { configRoute } from "./routes/config";
@@ -26,6 +27,7 @@ export function createApp(opts: CreateAppOptions = {}) {
   app.route("/api/tree", treeRoute);
   app.route("/api/search", searchRoute);
   app.route("/api/chats", chatsRoute);
+  app.route("/api/drawings", drawingsRoute);
   app.route("/api/uploads", uploadsRoute);
   app.route("/api/events", eventsRoute);
   app.route("/attachments", attachmentsRoute);

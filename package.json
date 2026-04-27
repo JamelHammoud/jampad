@@ -52,7 +52,9 @@
     "markdown",
     "local-first"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.18.1"
+  },
   "devDependencies": {
     "@blocknote/core": "0.48.1",
     "@blocknote/mantine": "0.48.1",

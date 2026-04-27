@@ -17,6 +17,10 @@ export function chatsRoot(): string {
   return getConfig().chats.dir;
 }
 
+export function drawingsRoot(): string {
+  return getConfig().drawings.dir;
+}
+
 export function consumerRoot(): string {
   return getConfig().cwd;
 }
