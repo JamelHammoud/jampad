@@ -54,8 +54,7 @@ export function PageView({ initial }: Props) {
     el.select();
     // Strip the ?new=1 once consumed so refreshing doesn't re-focus.
     window.history.replaceState(null, "", slugToHref(initial.slug));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isNew, initial.slug]);
 
   const state = useRef({
     title: initial.title,

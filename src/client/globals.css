@@ -920,6 +920,11 @@ body {
   opacity: 1;
   pointer-events: auto;
 }
+@media (min-width: 768px) {
+  .mobile-drawer-backdrop {
+    display: none;
+  }
+}
 
 @media (max-width: 767px) {
   .mobile-topbar {
