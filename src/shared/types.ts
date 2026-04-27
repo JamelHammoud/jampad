@@ -57,6 +57,23 @@ export type ChatData = ChatMeta & {
   messages: ChatMessage[];
 };
 
+export type DrawingMeta = {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type DrawingScene = {
+  elements: unknown[];
+  appState: Record<string, unknown>;
+  files: Record<string, unknown>;
+};
+
+export type DrawingData = DrawingMeta & {
+  scene: DrawingScene;
+};
+
 export type ClaudeStreamEvent =
   | { kind: "session"; sessionId: string }
   | { kind: "text"; text: string }

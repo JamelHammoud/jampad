@@ -44,6 +44,7 @@ export type FeaturesConfig = {
   icon?: boolean;
   cover?: boolean;
   chat?: boolean;
+  draw?: boolean;
   search?: boolean;
   newPage?: boolean;
 };
@@ -97,6 +98,9 @@ export type JampadConfig = {
       systemPrompt?: string;
     };
   };
+  drawings?: {
+    dir?: string;
+  };
   theme?: ThemeConfig;
   css?: string[];
   branding?: BrandingConfig;
@@ -144,6 +148,9 @@ export type ResolvedJampadConfig = {
       systemPrompt: string;
     };
   };
+  drawings: {
+    dir: string;
+  };
   theme: Required<ThemeConfig>;
   css: string[];
   branding: Required<BrandingConfig>;
@@ -186,6 +193,7 @@ const DEFAULT_FEATURES: Required<FeaturesConfig> = {
   icon: true,
   cover: true,
   chat: false,
+  draw: true,
   search: true,
   newPage: true,
 };
@@ -245,6 +253,7 @@ function resolveConfig(
     path.join(contentDir, "attachments"),
   );
   const chatsDir = abs(cwd, raw.chats?.dir, "./chats");
+  const drawingsDir = abs(cwd, raw.drawings?.dir, "./drawings");
 
   let urlPrefix = raw.uploads?.urlPrefix ?? "/attachments/";
   if (!urlPrefix.startsWith("/")) urlPrefix = "/" + urlPrefix;
@@ -286,6 +295,9 @@ function resolveConfig(
           : null,
         systemPrompt: raw.chats?.claude?.systemPrompt ?? "",
       },
+    },
+    drawings: {
+      dir: drawingsDir,
     },
     theme: { ...DEFAULT_THEME, ...(raw.theme ?? {}) },
     css: (raw.css ?? []).map((p) => abs(cwd, p, p)),

@@ -10,6 +10,8 @@ import { HomeRoute } from "./routes/Home";
 import { PageRoute } from "./routes/Page";
 import { ChatLandingRoute } from "./routes/ChatLanding";
 import { ChatRoute } from "./routes/Chat";
+import { DrawLandingRoute } from "./routes/DrawLanding";
+import { DrawRoute } from "./routes/Draw";
 
 export function App({ config }: { config: ClientConfig }) {
   const showSidebar = config.features.sidebar;
@@ -26,6 +28,12 @@ export function App({ config }: { config: ClientConfig }) {
                 <>
                   <Route path="/chat" element={<ChatLandingRoute />} />
                   <Route path="/chat/:id" element={<ChatRoute />} />
+                </>
+              )}
+              {config.features.draw && (
+                <>
+                  <Route path="/draw" element={<DrawLandingRoute />} />
+                  <Route path="/draw/:id" element={<DrawRoute />} />
                 </>
               )}
               <Route path="/*" element={<PageRoute />} />
@@ -49,13 +57,10 @@ function Shell({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { pathname } = useLocation();
 
-  // Auto-close the mobile drawer whenever the route changes.
   useEffect(() => {
     setDrawerOpen(false);
   }, [pathname]);
 
-  // Lock body scroll while the drawer is open so the page underneath
-  // doesn't scroll along with the gesture.
   useEffect(() => {
     if (!drawerOpen) return;
     const prev = document.body.style.overflow;

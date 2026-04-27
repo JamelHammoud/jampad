@@ -52,7 +52,6 @@ export function PageView({ initial }: Props) {
     if (!el) return;
     el.focus();
     el.select();
-    // Strip the ?new=1 once consumed so refreshing doesn't re-focus.
     window.history.replaceState(null, "", slugToHref(initial.slug));
   }, [isNew, initial.slug]);
 

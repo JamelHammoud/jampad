@@ -477,6 +477,9 @@ body {
 }
 
 .sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 10px 12px 14px 12px;
 }
 .new-chat-pill {
@@ -849,6 +852,150 @@ body {
   background: var(--bg-sidebar);
 }
 
+.drawing-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.drawing-titlebar {
+  display: flex;
+  align-items: center;
+  height: 45px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--fg-05);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.drawing-title-input {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  width: 100%;
+  padding: 0;
+  letter-spacing: -0.005em;
+}
+.drawing-title-input::placeholder {
+  color: var(--fg-40);
+}
+.drawing-canvas {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  background: var(--bg);
+}
+
+/* The drawing-canvas-scoped selectors win specificity-wise against
+   Excalidraw's own `.excalidraw { --color-primary: ...; ... }` rules
+   that ship inside the lazy bundle. */
+.drawing-canvas .excalidraw {
+  --color-primary: var(--fg);
+  --color-primary-darker: var(--fg);
+  --color-primary-darkest: var(--fg);
+  --color-primary-hover: var(--fg);
+  --color-primary-light: var(--bg-hover-strong);
+  --color-primary-light-darker: var(--bg-active);
+  --color-brand-hover: var(--bg-hover-strong);
+  --color-brand-active: var(--bg-active);
+  --color-selection: var(--accent);
+  --color-on-primary-container: var(--fg);
+
+  --color-surface-lowest: var(--bg);
+  --color-surface-low: var(--bg-sidebar);
+  --color-surface-mid: var(--bg);
+  --color-surface-high: var(--bg-hover);
+  --color-surface-highest: var(--bg);
+  --color-surface-primary-container: var(--bg-hover-strong);
+
+  --island-bg-color: var(--bg);
+  --default-bg-color: var(--bg);
+  --shadow-island: none;
+
+  --color-on-surface: var(--fg);
+  --color-text: var(--fg);
+  --text-primary-color: var(--fg);
+
+  --button-bg: transparent;
+  --button-hover-bg: var(--bg-hover);
+  --button-active-bg: var(--bg-active);
+  --button-color: var(--fg);
+  --button-hover-color: var(--fg);
+  --button-selected-bg: var(--bg-hover-strong);
+  --button-selected-border: transparent;
+
+  --RadioGroup-background: transparent;
+  --RadioGroup-border: transparent;
+  --RadioGroup-choice-color-off: var(--fg-60);
+  --RadioGroup-choice-color-off-hover: var(--fg);
+  --RadioGroup-choice-background-off: transparent;
+  --RadioGroup-choice-background-off-active: var(--bg-hover);
+  --RadioGroup-choice-color-on: var(--fg);
+  --RadioGroup-choice-background-on: var(--bg-hover-strong);
+  --RadioGroup-choice-background-on-hover: var(--bg-active);
+  --RadioGroup-choice-background-on-active: var(--bg-active);
+
+  --color-slider-track: var(--bg-hover-strong);
+  --color-slider-thumb: var(--fg);
+
+  --color-border-outline: var(--divider);
+  --color-border-outline-variant: var(--fg-09);
+  --input-bg-color: var(--bg);
+  --input-border-color: var(--divider);
+
+  --ui-font: var(--font-sans);
+
+  font-family: var(--font-sans) !important;
+}
+.drawing-canvas .excalidraw .Island {
+  border: 1px solid var(--fg-05) !important;
+  box-shadow: none !important;
+}
+.drawing-canvas .excalidraw .HintViewer {
+  display: none !important;
+}
+.drawing-canvas .excalidraw .App-toolbar {
+  border: 1px solid var(--divider) !important;
+  box-shadow:
+    0 1px 2px rgba(15, 15, 15, 0.04),
+    0 4px 12px rgba(15, 15, 15, 0.05) !important;
+  border-radius: 10px !important;
+}
+.drawing-canvas .excalidraw .ToolIcon__icon {
+  border-radius: 8px !important;
+}
+.drawing-canvas .excalidraw .Stack > .ToolIcon_type_button,
+.drawing-canvas .excalidraw .ToolIcon_type_button {
+  color: var(--fg);
+}
+.drawing-canvas .excalidraw .undo-redo-buttons {
+  background: var(--bg);
+}
+.drawing-canvas .excalidraw .dropdown-menu-button,
+.drawing-canvas .excalidraw .default-sidebar-trigger,
+.drawing-canvas .excalidraw .help-icon,
+.drawing-canvas .excalidraw .App-toolbar__divider,
+.drawing-canvas .excalidraw .ToolIcon__keybinding,
+.drawing-canvas .excalidraw .ToolIcon__lock {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .drawing-canvas .excalidraw .App-toolbar,
+  .drawing-canvas .excalidraw .App-menu_top {
+    max-width: calc(100vw - 16px) !important;
+  }
+  .drawing-titlebar {
+    padding: 0 12px;
+    height: 44px;
+  }
+}
+
 .mobile-topbar {
   display: none;
   align-items: center;
@@ -950,7 +1097,6 @@ body {
     transform: translateX(0);
   }
 
-  /* Touch devices: hover-only affordances must always be visible */
   .sidebar-row .toggle,
   .sidebar-row .actions,
   .sidebar-section-label .add-btn {
@@ -1000,7 +1146,6 @@ body {
     display: inline-flex;
   }
 
-  /* BlockNote: nudge formatting menus into the viewport on small screens */
   .bn-container .bn-formatting-toolbar,
   .bn-container .bn-link-toolbar {
     max-width: calc(100vw - 16px) !important;

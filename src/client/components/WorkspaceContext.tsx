@@ -7,15 +7,17 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { ChatMeta, SectionGroup } from "@/shared/types";
+import type { ChatMeta, DrawingMeta, SectionGroup } from "@/shared/types";
 import { useClientConfig } from "./ConfigContext";
 
 type WorkspaceContextValue = {
   sections: SectionGroup[];
   chats: ChatMeta[];
+  drawings: DrawingMeta[];
   loading: boolean;
   refresh: () => Promise<void>;
   refreshChats: () => Promise<void>;
+  refreshDrawings: () => Promise<void>;
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean) => void;
 };
@@ -25,8 +27,10 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const cfg = useClientConfig();
   const chatEnabled = cfg.features.chat;
+  const drawEnabled = cfg.features.draw;
   const [sections, setSections] = useState<SectionGroup[]>([]);
   const [chats, setChats] = useState<ChatMeta[]>([]);
+  const [drawings, setDrawings] = useState<DrawingMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [paletteOpen, setPaletteOpen] = useState(false);
 
@@ -41,17 +45,29 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     }
   }, [chatEnabled]);
 
+  const refreshDrawings = useCallback(async () => {
+    if (!drawEnabled) return;
+    try {
+      const res = await fetch("/api/drawings", { cache: "no-store" });
+      const data = await res.json();
+      setDrawings(data.drawings ?? []);
+    } catch {
+      /* ignore */
+    }
+  }, [drawEnabled]);
+
   const refresh = useCallback(async () => {
     try {
       const [tree] = await Promise.all([
         fetch("/api/tree", { cache: "no-store" }).then((r) => r.json()),
         refreshChats(),
+        refreshDrawings(),
       ]);
       setSections(tree.sections ?? []);
     } finally {
       setLoading(false);
     }
-  }, [refreshChats]);
+  }, [refreshChats, refreshDrawings]);
 
   useEffect(() => {
     refresh();
@@ -88,13 +104,24 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     () => ({
       sections,
       chats,
+      drawings,
       loading,
       refresh,
       refreshChats,
+      refreshDrawings,
       paletteOpen,
       setPaletteOpen,
     }),
-    [sections, chats, loading, refresh, refreshChats, paletteOpen],
+    [
+      sections,
+      chats,
+      drawings,
+      loading,
+      refresh,
+      refreshChats,
+      refreshDrawings,
+      paletteOpen,
+    ],
   );
 
   return (

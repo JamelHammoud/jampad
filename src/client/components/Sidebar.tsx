@@ -8,12 +8,14 @@ import {
   MessageCircle,
   MessageSquarePlus,
   MessagesSquare,
+  Pencil,
   Plus,
   Search,
+  Shapes,
   Trash2,
 } from "lucide-react";
 import clsx from "clsx";
-import type { TreeNode } from "@/shared/types";
+import type { DrawingMeta, TreeNode } from "@/shared/types";
 import { slugEqual, slugStartsWith, slugToHref } from "@/shared/slug";
 import { useWorkspace } from "./WorkspaceContext";
 import { useClientConfig } from "./ConfigContext";
@@ -33,18 +35,33 @@ export function Sidebar({
   drawerOpen?: boolean;
   onNavigate?: () => void;
 } = {}) {
-  const { sections, chats, refresh, refreshChats, setPaletteOpen } =
-    useWorkspace();
+  const {
+    sections,
+    chats,
+    drawings,
+    refresh,
+    refreshChats,
+    refreshDrawings,
+    setPaletteOpen,
+  } = useWorkspace();
   const cfg = useClientConfig();
   const pathname = usePathname();
   const current = currentSlugFromPath(pathname);
   const router = useRouter();
   const chatEnabled = cfg.features.chat;
-  const viewMode: "home" | "chat" =
-    chatEnabled && pathname.startsWith("/chat") ? "chat" : "home";
+  const drawEnabled = cfg.features.draw;
+  const viewMode: "home" | "chat" | "draw" =
+    drawEnabled && pathname.startsWith("/draw")
+      ? "draw"
+      : chatEnabled && pathname.startsWith("/chat")
+        ? "chat"
+        : "home";
   const isHome = viewMode === "home" && current.length === 0;
   const activeChatId = pathname.startsWith("/chat/")
     ? decodeURIComponent(pathname.slice("/chat/".length))
+    : null;
+  const activeDrawingId = pathname.startsWith("/draw/")
+    ? decodeURIComponent(pathname.slice("/draw/".length))
     : null;
 
   const autoExpanded = useMemo(() => {
@@ -116,6 +133,30 @@ export function Sidebar({
     onNavigate?.();
   }, [refreshChats, router, onNavigate]);
 
+  const newDrawing = useCallback(async () => {
+    const res = await fetch("/api/drawings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    if (!res.ok) return;
+    const data = (await res.json()) as { id: string };
+    await refreshDrawings();
+    router.push(`/draw/${data.id}`);
+    onNavigate?.();
+  }, [refreshDrawings, router, onNavigate]);
+
+  const deleteDrawing = useCallback(
+    async (id: string) => {
+      const ok = window.confirm("Delete this drawing?");
+      if (!ok) return;
+      await fetch(`/api/drawings/${id}`, { method: "DELETE" });
+      await refreshDrawings();
+      if (activeDrawingId === id) router.push("/");
+    },
+    [activeDrawingId, refreshDrawings, router],
+  );
+
   useEffect(() => {
     if (!chatEnabled) return;
     function onKey(e: KeyboardEvent) {
@@ -174,52 +215,70 @@ export function Sidebar({
 
       <div className="sidebar-nav-row">
         {viewMode === "home" ? (
-          <>
-            <Link
-              href="/"
-              className="nav-btn primary"
-              data-active={isHome || undefined}
-              onClick={() => onNavigate?.()}
-            >
-              <Home size={16} />
-              <span>Home</span>
-            </Link>
-            {chatEnabled && (
-              <Link
-                href="/chat"
-                className="nav-btn"
-                title="Chat"
-                aria-label="Chat"
-                onClick={() => onNavigate?.()}
-              >
-                <MessageCircle size={16} />
-              </Link>
-            )}
-          </>
+          <Link
+            href="/"
+            className="nav-btn primary"
+            data-active={isHome || undefined}
+            onClick={() => onNavigate?.()}
+          >
+            <Home size={16} />
+            <span>Home</span>
+          </Link>
         ) : (
-          <>
+          <Link
+            href="/"
+            className="nav-btn"
+            title="Home"
+            aria-label="Home"
+            onClick={() => onNavigate?.()}
+          >
+            <Home size={16} />
+          </Link>
+        )}
+        {chatEnabled &&
+          (viewMode === "chat" ? (
             <Link
-              href="/"
-              className="nav-btn"
-              title="Home"
-              aria-label="Home"
+              href="/chat"
+              className="nav-btn primary"
+              data-active
               onClick={() => onNavigate?.()}
             >
-              <Home size={16} />
+              <MessageCircle size={16} />
+              <span>Chat</span>
             </Link>
-            {chatEnabled && (
-              <Link
-                href="/chat"
-                className="nav-btn primary"
-                data-active
-                onClick={() => onNavigate?.()}
-              >
-                <MessageCircle size={16} />
-                <span>Chat</span>
-              </Link>
-            )}
-          </>
-        )}
+          ) : (
+            <Link
+              href="/chat"
+              className="nav-btn"
+              title="Chat"
+              aria-label="Chat"
+              onClick={() => onNavigate?.()}
+            >
+              <MessageCircle size={16} />
+            </Link>
+          ))}
+        {drawEnabled &&
+          (viewMode === "draw" ? (
+            <Link
+              href="/draw"
+              className="nav-btn primary"
+              data-active
+              onClick={() => onNavigate?.()}
+            >
+              <Pencil size={16} />
+              <span>Draw</span>
+            </Link>
+          ) : (
+            <Link
+              href="/draw"
+              className="nav-btn"
+              title="Draw"
+              aria-label="Draw"
+              onClick={() => onNavigate?.()}
+            >
+              <Pencil size={16} />
+            </Link>
+          ))}
         {cfg.features.search && (
           <button
             className="nav-btn"
@@ -245,6 +304,16 @@ export function Sidebar({
               onNavigate?.();
             }}
             onDelete={deleteChat}
+          />
+        ) : viewMode === "draw" ? (
+          <DrawSidebar
+            drawings={drawings}
+            activeDrawingId={activeDrawingId}
+            onOpen={(id) => {
+              router.push(`/draw/${id}`);
+              onNavigate?.();
+            }}
+            onDelete={deleteDrawing}
           />
         ) : sections.length === 0 ? (
           <EmptyState onAddSection={addSection} />
@@ -294,16 +363,87 @@ export function Sidebar({
         )}
       </nav>
 
-      {chatEnabled && (
+      {(drawEnabled && viewMode === "draw") || chatEnabled ? (
         <div className="sidebar-bottom">
-          <button className="new-chat-pill" onClick={newChat}>
-            <MessageSquarePlus size={16} />
-            <span>{cfg.strings.newChat}</span>
-            <span className="shortcut">⌘O</span>
-          </button>
+          {drawEnabled && viewMode === "draw" && (
+            <button className="new-chat-pill" onClick={newDrawing}>
+              <Shapes size={16} />
+              <span>New drawing</span>
+            </button>
+          )}
+          {chatEnabled && (
+            <button className="new-chat-pill" onClick={newChat}>
+              <MessageSquarePlus size={16} />
+              <span>{cfg.strings.newChat}</span>
+              <span className="shortcut">⌘O</span>
+            </button>
+          )}
+        </div>
+      ) : null}
+    </aside>
+  );
+}
+
+function DrawSidebar({
+  drawings,
+  activeDrawingId,
+  onOpen,
+  onDelete,
+}: {
+  drawings: DrawingMeta[];
+  activeDrawingId: string | null;
+  onOpen: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <>
+      {drawings.length === 0 ? (
+        <div className="chat-empty">
+          <Shapes size={22} strokeWidth={1.6} />
+          <div className="chat-empty-text">No drawings yet</div>
+        </div>
+      ) : (
+        <div className="sidebar-section-group">
+          <div className="sidebar-section-label">
+            <span className="flex-1">Recents</span>
+          </div>
+          <div>
+            {drawings.map((drawing) => (
+              <div
+                key={drawing.id}
+                className="sidebar-row"
+                data-active={activeDrawingId === drawing.id || undefined}
+                style={{ paddingLeft: 0 }}
+                onClick={() => onOpen(drawing.id)}
+                role="button"
+                tabIndex={0}
+              >
+                <span className="toggle" aria-hidden>
+                  <span style={{ width: 12 }} />
+                </span>
+                <span className="icon" aria-hidden>
+                  <Shapes size={14} />
+                </span>
+                <span className="label">
+                  {drawing.title || "Untitled drawing"}
+                </span>
+                <span className="actions">
+                  <button
+                    title="Delete drawing"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(drawing.id);
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
-    </aside>
+    </>
   );
 }
 

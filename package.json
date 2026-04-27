@@ -1,6 +1,6 @@
 {
   "name": "@jamelhammoud/jampad",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A Notion-style, local-first wiki & chat that boots from a single config file.",
   "license": "MIT",
   "author": "Jamel Hammoud",
@@ -58,6 +58,7 @@
     "@blocknote/mantine": "0.48.1",
     "@blocknote/react": "0.48.1",
     "@emoji-mart/data": "^1.2.1",
+    "@excalidraw/excalidraw": "^0.18.1",
     "@emoji-mart/react": "^1.1.1",
     "@eslint/js": "^10.0.1",
     "@floating-ui/dom": "^1.6.0",
