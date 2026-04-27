@@ -5,11 +5,7 @@ import { slugToHref } from "@/shared/slug";
 import { useClientConfig } from "./ConfigContext";
 import { useWorkspace } from "./WorkspaceContext";
 
-export function MobileTopBar({
-  onOpenDrawer,
-}: {
-  onOpenDrawer: () => void;
-}) {
+export function MobileTopBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
   const cfg = useClientConfig();
   const { setPaletteOpen, refresh } = useWorkspace();
   const router = useRouter();

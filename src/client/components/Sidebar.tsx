@@ -169,10 +169,7 @@ export function Sidebar({
   );
 
   return (
-    <aside
-      className="sidebar-aside"
-      data-drawer-open={drawerOpen || undefined}
-    >
+    <aside className="sidebar-aside" data-drawer-open={drawerOpen || undefined}>
       <WorkspaceHeader />
 
       <div className="sidebar-nav-row">
